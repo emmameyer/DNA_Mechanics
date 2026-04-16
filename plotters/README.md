@@ -7,5 +7,5 @@ README file for plotters
 6. plot_stacking: plots stacking interaction analysis (broken/intact interactions over the length of the simulation)
 7. plot_sum_of_broken_interactions.py: finds the total number of broken hydrogen bonds and the total number of broken stacking interactions for a circular dsDNA trajectory, and plots the two values as a function of time.
 8. plot_sawtooth_v1:
-9. plot_sawtooth_NA_before:
+9. plot_sawtooth_NA_before_digest: plots just the before panel of the no additives Soumya gel data, with a polynomial fit
 10. plot_sawtooth_v2:
