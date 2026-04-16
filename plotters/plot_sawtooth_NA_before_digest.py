@@ -1,9 +1,9 @@
 """
-plot_na_before_only.py
+plot_sawtooth_NA_before_digest.py
 
 plots just the before panel of the no additives Soumya gel data, with a polynomial fit
 to use:
-python3 plot_na_before_only.py 03_27_2026_na_before.svg \
+python3 plot_sawtooth_NA_before_digest.py 03_27_2026_na_before.svg \
 --data-file bal31_data.txt \
 --xlim 50,106 \
 --ylim 9.0,13.5
