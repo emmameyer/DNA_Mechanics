@@ -6,6 +6,5 @@ README file for plotters
 5. plot_hbond.py: plots hydrogen bond analysis (broken/intact interactions over the length of the simulation)
 6. plot_stacking: plots stacking interaction analysis (broken/intact interactions over the length of the simulation)
 7. plot_sum_of_broken_interactions.py: finds the total number of broken hydrogen bonds and the total number of broken stacking interactions for a circular dsDNA trajectory, and plots the two values as a function of time.
-8. plot_sawtooth_v1:
+8. plot_sawtooths: plots sawtooth plots for a variety of Soumya's experimental BAL-31 digest data: no additives, 5 ug/mL EtBr, 12.5 ug/mL EtBr, and HMfB. uses txt files as input (bal31 holds no additives and etbr data, the hmfb is in a separate text file)
 9. plot_sawtooth_NA_before_digest: plots just the before panel of the no additives Soumya gel data, with a polynomial fit
-10. plot_sawtooth_v2:
