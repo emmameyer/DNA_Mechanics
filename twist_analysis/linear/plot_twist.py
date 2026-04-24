@@ -57,7 +57,6 @@ for i, (bar, avg, err) in enumerate(zip(bars, final_averages, final_std_errors))
             f'{avg:.3f}° ± {err:.3f}°',
             ha='center', va='bottom', fontsize=9, fontweight='bold')
 
-# --- Styling improvements ---
 ax.set_xlabel('DNA Sequence', fontsize=13, fontweight='bold', labelpad=10)
 ax.set_ylabel('Overall Average Internal Twist (degrees)', 
               fontsize=13, fontweight='bold', labelpad=10)
