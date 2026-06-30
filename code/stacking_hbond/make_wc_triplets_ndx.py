@@ -1,40 +1,167 @@
 """
 make_wc_triplets_ndx.py
 
-Builds a GROMACS index file with Watson-Crick H-bond triplet groups,
-in H-D-A order (hydrogen, donor heavy atom, acceptor), for use with
-gmx angle. Solvent and ions are ignored automatically.
+Builds a GROMACS index file with Watson-Crick H-bond triplet groups for
+circular DNA, in H-D-A order (hydrogen, donor heavy atom, acceptor),
+for use with gmx angle.
 
-DNA residues (DA/DT/DG/DC, including terminal variants like DA5/DT3)
-get pulled out of the .gro in file order, and the numbers in pairs.tsv
-refer to positions within that DNA-only list (1..N) rather than the
-raw .gro residue IDs.
+Assumes the standard circular numbering: strand 1 is residues 1..N_bp,
+strand 2 is (N_bp+1)..(2*N_bp), and residue i pairs with residue
+(2*N_bp + 1 - i).
 
-Usage:
-    python make_wc_triplets_ndx.py structure.gro pairs.tsv wc_triplets.ndx
+Donors: DT N3-H3 -> DA N1, and DG N1-H1 -> DC N3
 
-pairs.tsv: two columns, DNA-order positions, e.g. for a 43 bp duplex:
-    1 86
-    2 85
-    ...
-    43 44
-
-Pairing rules:
-    G donor: N1-H1, pairs with C acceptor N3
-    T donor: N3-H3, pairs with A acceptor N1
-
-Output groups: [BP01] .. [BP##], each with 3 atom indices in H-D-A order.
+Usage for an 80 bp circular DNA (160 residues total):
+    python3 make_wc_triplets_ndx.py structure.gro 80 [output_dir]
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
+
+bases = {"DA", "DT", "DG", "DC"}
 
 
-def normalize_resname(rn):
-    # strip down to letters, uppercase, match against known prefixes so
-    # DA5/dt3/ADE etc all collapse to one canonical tag
-    letters = ''.join(ch for ch in rn if ch.isalpha()).upper()
-    for prefix in ("DA", "DT", "DG", "DC", "ADE", "THY", "GUA", "CYT", "A", "T", "G", "C"):
+def core(resname):
+    # collapse terminal labels like DA3/DT5 down to the plain base name
+    rn = resname.strip().upper()
+    if rn in bases:
+        return rn
+    if rn[-1:] in {"3", "5"} and rn[:-1] in bases:
+        return rn[:-1]
+    return rn
+
+
+def parse_gro(gro):
+    lines = gro.read_text().splitlines()
+    natoms = int(lines[1].strip())
+    lines = lines[2:2 + natoms]
+    atoms = []
+    for ln in lines:
+        resid = int(ln[0:5])
+        resname = ln[5:10].strip()
+        aname = ln[10:15].strip()
+        idx = int(ln[15:20])
+        if core(resname) in bases:
+            atoms.append((resid, resname, aname, idx))
+    if not atoms:
+        raise ValueError("No DNA bases (DA/DT/DG/DC) found in GRO")
+    return atoms
+
+
+def lookup_table(atoms):
+    # (resid, base, atom_name) -> atom index
+    table = {}
+    for resid, resname, aname, idx in atoms:
+        b = core(resname)
+        table[(resid, b, aname.strip().upper())] = idx
+    return table
+
+
+def get_base_type(atoms, resid):
+    for r, resname, _, _ in atoms:
+        if r == resid:
+            return core(resname)
+    return None
+
+
+def triplet_for_pair(table, res_a, base_a, res_b, base_b):
+    # returns H-D-A atom indices, or None if anything's missing/non-WC
+    if base_a == "DA" and base_b == "DT":
+        # donor is DT on strand b
+        h = table.get((res_b, "DT", "H3"))
+        d = table.get((res_b, "DT", "N3"))
+        a = table.get((res_a, "DA", "N1"))
+    elif base_a == "DT" and base_b == "DA":
+        # donor is DT on strand a
+        h = table.get((res_a, "DT", "H3"))
+        d = table.get((res_a, "DT", "N3"))
+        a = table.get((res_b, "DA", "N1"))
+    elif base_a == "DG" and base_b == "DC":
+        # donor is DG on strand a
+        h = table.get((res_a, "DG", "H1"))
+        d = table.get((res_a, "DG", "N1"))
+        a = table.get((res_b, "DC", "N3"))
+    elif base_a == "DC" and base_b == "DG":
+        # donor is DG on strand b
+        h = table.get((res_b, "DG", "H1"))
+        d = table.get((res_b, "DG", "N1"))
+        a = table.get((res_a, "DC", "N3"))
+    else:
+        return None
+
+    if None in (h, d, a):
+        return None
+    return [h, d, a]
+
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: python3 make_wc_triplets_ndx_circular.py structure.gro N_bp [output_dir]")
+        print("  N_bp = number of base pairs (e.g. 80 for 160-residue circular DNA)")
+        print("  output_dir = optional, defaults to the input gro's directory")
+        sys.exit(1)
+
+    gro_path = Path(sys.argv[1])
+    n_bp = int(sys.argv[2])
+
+    if len(sys.argv) >= 4:
+        output_dir = Path(sys.argv[3])
+        output_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        output_dir = gro_path.parent
+
+    out_path = output_dir / "wc_triplets.ndx"
+
+    atoms = parse_gro(gro_path)
+    table = lookup_table(atoms)
+
+    residues = sorted(set(r for r, _, _, _ in atoms))
+    print(f"Found {len(residues)} residues: {min(residues)} to {max(residues)}")
+
+    groups = []
+    all_triplets = []
+
+    # chain 1 residue i pairs with chain 2 residue (2*n_bp + 1 - i)
+    for i in range(1, n_bp + 1):
+        res_a = i
+        res_b = (2 * n_bp + 1) - i
+
+        base_a = get_base_type(atoms, res_a)
+        base_b = get_base_type(atoms, res_b)
+
+        if not base_a or not base_b:
+            print(f"warning: missing base for pair {i}: res {res_a} ({base_a}) <-> res {res_b} ({base_b})")
+            continue
+
+        if base_a not in ("DA", "DT", "DG", "DC") or base_b not in ("DA", "DT", "DG", "DC"):
+            print(f"warning: non-WC pair {i}: {base_a} (res {res_a}) <-> {base_b} (res {res_b})")
+            continue
+
+        triplet = triplet_for_pair(table, res_a, base_a, res_b, base_b)
+
+        if triplet:
+            groups.append((f"BP{i:02d}_trip", triplet))
+            all_triplets.extend(triplet)
+            print(f"triplet {i:02d}: res{res_a:3d} ({base_a}) <-> res{res_b:3d} ({base_b}) | atoms {triplet[0]:5d} - {triplet[1]:5d} - {triplet[2]:5d}")
+        else:
+            print(f"warning: missing atoms or non-WC pair {i}: res {res_a} ({base_a}) <-> res {res_b} ({base_b})")
+
+    with out_path.open("w") as f:
+        for name, idxs in groups:
+            f.write(f"[ {name} ]\n")
+            f.write(" ".join(map(str, idxs)) + "\n\n")
+
+        if all_triplets:
+            f.write("[ all_triplets ]\n")
+            for k in range(0, len(all_triplets), 3):
+                f.write(f"{all_triplets[k]:>5} {all_triplets[k+1]:>5} {all_triplets[k+2]:>5}\n")
+            f.write("\n")
+
+    print(f"\nwrote {len(groups)} triplet groups and [ all_triplets ] to {out_path}")
+
+
+if __name__ == "__main__":
+    main()    for prefix in ("DA", "DT", "DG", "DC", "ADE", "THY", "GUA", "CYT", "A", "T", "G", "C"):
         if letters.startswith(prefix):
             return prefix
     return letters
