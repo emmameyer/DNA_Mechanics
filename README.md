@@ -15,7 +15,7 @@ DNA mechanics projects at KSU: GROMACS setup/simulation, PyMOL structure prep an
 
 ## General workflow
 
-1. Build and run the system using the scripts in `gromacs_files` (see that folder's [README.md](gromacs_files/README.md).
+1. Build and run the system using the scripts in `gromacs_files` (see that folder's [README.md](gromacs_files/README.md)).
 2. Extract structural parameters from the trajectory with `do_x3dna`.
 3. Analyze and plot using the scripts in `code` (twist_analysis, stacking_hbond, plotters as needed).
 4. Visualize structures/trajectories in PyMOL using the scripts in `pymol`.
