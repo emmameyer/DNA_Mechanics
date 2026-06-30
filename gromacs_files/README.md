@@ -3,4 +3,4 @@
 3. first_em.sh: double precision em (not necessary) done using the box gro file, maxwarn necessary to handle system charges, step 3
 4. solvate_add_ions.sh: solvates the system, adds ions, 0.150 M, runs second em, step 4
 5. nvt_npt.sh: nvt and npt steps, step 5
-6. correct_trajectory: corrects the trajectory md files, step 6
+6. correct_trajectory: corrects the trajectory md files, change names per usual, ensure EOF is selecting the right group from index file, step 6
