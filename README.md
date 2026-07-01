@@ -1,7 +1,7 @@
 # DNA_Mechanics
 
 DNA mechanics projects at KSU: GROMACS setup/simulation, PyMOL structure prep and visualization, and analysis/plotting of trajectories (twist, h-bonds, base stacking interactions).
-![alt text](images/nick_histone_frame_208.png)
+<img src="images/nick_histone_frame_208.png" width="200">
 
 ## Layout
 
