@@ -20,18 +20,17 @@
 * Do this for every object, * replaces numbers for this example (object1, object2, etc.)
 * These new itp files are structured as topology files, so a few edits are required. Delete the #include forcefield line at the top of each, this includes your forcefield for the simulation, which will be defined in the main topology file and shouldn't be defined more than once. Also delete the rest of the lines at the bottom that isn't posre, starting with ; Include water topology down to the [molecules], only thing left at the end should be the position restraint file (take note of the compound names: DNA_chain_A & DNA_chain_B ). The posre itp file needs to remain included in this "new" itp file.
 * The workflow gromacs follows is now such: system.top has lines #include object1.itp and #include object2.itp, which point to the itp files that were just made. These itp files hold the topologies of each piece of the system, and at the bottom they point to its position restraint file with #include posre_object1.itp (same for the second).
-
-3. Create the main topology by copying a topology file that was outputted by pdb2gmx. It doesn't matter which one, you are using it as a template.
+4. Create the main topology by copying a topology file that was outputted by pdb2gmx. It doesn't matter which one, you are using it as a template.
 * cp {one_object}.top system.top
 * Delete the [moleculetype] and everything below it until water topology, it should include the following:
 *   #include forcefield
-Inlcude "{object_name}.itp"
-Include "{object_name}itp"
-Water
-Posres_water
-Ions
-System
-Molecules: make sure the molecules are correct and in the same order as the include statements (strand1 and strand 2, DNA_chain whatever)
+*   #inlcude "{object_name}.itp"
+*   #include "{object_name}itp"
+*   Water
+*   Posres_water
+*   Ions
+*   System
+*   Molecules: make sure the molecules are correct and in the same order as the include statements (strand1 and strand 2, DNA_chain whatever)
 
 Merge the processed gro files together using MDAnalaysis
 
