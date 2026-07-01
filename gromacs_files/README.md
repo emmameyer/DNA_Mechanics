@@ -12,7 +12,6 @@
 1. Obtain PDB
 * If multiple strands/objects (such as dsDNA or a DNA and protein system) cause GROMACS errors: Separate the strands/objects to have separate .pdb files (strand1.pdb, strand2.pdb, dna.pdb, histone.pdb, etc.)
 * Do this in PyMOL by selecting each object separately and saving them separately by exporting molecule (as a pdb file)
-
 2. Run gmx pdb2gmx on each object
 * gmx pdb2gmx -f {object1_name}.pdb -p {object1_name}.top -o {object1_name}_processed.gro -i posre_{object1_name}.itp -water tip3p -ff amber14sb_parmbsc1_cufix -merge all
 * gmx pdb2gmx -f {object2_name}.pdb -p {object2_name}.top -o {object2_name}_processed.gro -i posre_{object2_name}.itp -water tip3p -ff amber14sb_parmbsc1_cufix -merge all
