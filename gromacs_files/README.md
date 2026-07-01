@@ -31,20 +31,7 @@
 *   Ions
 *   System
 *   Molecules: make sure the molecules are correct and in the same order as the include statements (strand1 and strand 2, DNA_chain whatever)
-
-Merge the processed gro files together using MDAnalaysis
-
-
-import MDAnalysis as mda
-# Load the two gromacs files
-u1 = mda.Universe("/Users/emma/Documents/kent/minicircles/BSC1/82bp_Tw8_deltaTw0/strand1_processed.gro")
-u2 = mda.Universe("/Users/emma/Documents/kent/minicircles/BSC1/82bp_Tw8_deltaTw0/strand2_processed.gro")
-# Combine atoms from both universes
-combined = mda.Merge(u1.atoms, u2.atoms)
-# Save to the same directory
-output_path = "/Users/emma/Documents/kent/minicircles/BSC1/82bp_Tw8_deltaTw0/merged.gro"
-combined.atoms.write(output_path)
-
+5. pdb2gmx outputs gro files as well that need to be combined. Merge the processed gro files together using MDAnalaysis, use [twist_analysis/merge_gro_files.py](merge_gro_files.py).
 
 Make the object be in the center of a box aligned to the z-axis
 gmx editconf -f system_processed.gro -princ -o system_aligned.gro
