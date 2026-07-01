@@ -10,8 +10,8 @@
 
 ## In general, the step by step process of simulation goes as follows:
 1. Obtain PDB
-*If multiple strands/objects (such as dsDNA or a DNA and protein system) cause GROMACS errors: Separate the strands/objects to have separate .pdb files (strand1.pdb, strand2.pdb, dna.pdb, histone.pdb, etc.)
-*Do this in PyMOL by selecting each object separately and saving them separately by exporting molecule (as a pdb file)
+* If multiple strands/objects (such as dsDNA or a DNA and protein system) cause GROMACS errors: Separate the strands/objects to have separate .pdb files (strand1.pdb, strand2.pdb, dna.pdb, histone.pdb, etc.)
+* Do this in PyMOL by selecting each object separately and saving them separately by exporting molecule (as a pdb file)
 
 
 Run gmx pdb2gmx on each object
