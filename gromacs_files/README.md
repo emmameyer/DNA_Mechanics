@@ -31,7 +31,7 @@
 *   Ions
 *   System
 *   Molecules: make sure the molecules are correct and in the same order as the include statements (strand1 and strand 2, DNA_chain whatever)
-5. pdb2gmx outputs gro files as well that need to be combined. Merge the processed gro files together using MDAnalaysis, use [twist_analysis/merge_gro_files.py](merge_gro_files.py).
+5. pdb2gmx outputs gro files as well that need to be combined. Merge the processed gro files together using MDAnalaysis, use [code/merge_gro_files.py](merge_gro_files.py).
 
 Make the object be in the center of a box aligned to the z-axis
 gmx editconf -f system_processed.gro -princ -o system_aligned.gro
