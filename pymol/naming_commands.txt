@@ -1,0 +1,13 @@
+# changing a residue name
+alter resn DA, resn='DA5'
+
+# assigning/altering a chain name
+alter sele, chain='A'
+alter chain A, chain='B'
+
+# changing a residue number ID 
+alter resi 5 and chain A, resi='105'
+
+# alter a chain/objects residue numbers, for multiple (here just adding 20)
+alter chain B, resi=str(int(resi)+20)
+alter my_object, resi=str(int(resi)+20)
