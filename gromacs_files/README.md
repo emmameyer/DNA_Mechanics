@@ -12,15 +12,15 @@
 1. Obtain PDB
     * If multiple strands/objects (such as dsDNA or a DNA and protein system) cause GROMACS errors: Separate the strands/objects to have separate .pdb files (strand1.pdb, strand2.pdb, dna.pdb, histone.pdb, etc.)
     * Do this in PyMOL by selecting each object separately and saving them separately by exporting molecule (as a pdb file)
-2. Run gmx pdb2gmx on each object
+2. Run gmx pdb2gmx on each object. It's good practice to always do these steps to each object in the same order each time, as later steps its critical to have the same order, for example, do strand1 first then strand2.
     * gmx pdb2gmx -f {object1_name}.pdb -p {object1_name}.top -o {object1_name}_processed.gro -i posre_{object1_name}.itp -water tip3p -ff amber14sb_parmbsc1_cufix -merge all
     * gmx pdb2gmx -f {object2_name}.pdb -p {object2_name}.top -o {object2_name}_processed.gro -i posre_{object2_name}.itp -water tip3p -ff amber14sb_parmbsc1_cufix -merge all
-3. If the strands/objects are separated, you need to create a main topology file. The main topology file is what combines the pieces back together into one piece. In this topology file, we need to call/reference the topology files generated for each object from pdb2gmx. In order to do this, we copy the contents of the topology files to itp files, that we can include in the main topology.
+3. If the strands/objects are separated, you need to create a main topology file. The main topology file is what combines the pieces back together into one piece. In this topology file, we need to call/reference the topology files generated for each object from pdb2gmx. In order to do this, we copy the contents of the topology files to itp files, that we can include in the main topology. 
     * cp {object*_name}.top {object*_name}.itp
     * Do this for every object, * replaces numbers for this example (object1, object2, etc.)
     * These new itp files are structured as topology files, so a few edits are required. Delete the #include forcefield line at the top of each, this includes your forcefield for the simulation, which will be defined in the main topology file and shouldn't be defined more than once. Also delete the rest of the lines at the bottom that isn't posre, starting with ; Include water topology down to the [molecules], only thing left at the end should be the position restraint file (take note of the compound names: DNA_chain_A & DNA_chain_B ). The posre itp file needs to remain included in this "new" itp file.
     * The workflow gromacs follows is now such: system.top has lines #include object1.itp and #include object2.itp, which point to the itp files that were just made. These itp files hold the topologies of each piece of the system, and at the bottom they point to its position restraint file with #include posre_object1.itp (same for the second).
-4. Create the main topology by copying a topology file that was outputted by pdb2gmx. It doesn't matter which one, you are using it as a template.
+4. Create the main topology by copying a topology file that was outputted by pdb2gmx. It doesn't matter which one, you are using it as a template. Here is another example where order is important, in the new topology file, keep the same established order of objects in the molecules section, as well as the #include statements.
     * cp {one_object}.top system.top
     * Delete the [moleculetype] and everything below it until water topology, it should include the following:
         *   #include forcefield
@@ -31,7 +31,7 @@
         *   Ions
         *   System
         *   Molecules: make sure the molecules are correct and in the same order as the include statements (strand1 and strand 2, DNA_chain whatever)
-5. pdb2gmx outputs gro files as well that need to be combined. Merge the processed gro files together using MDAnalaysis, use [merge_gro_files.py](../code/merge_gro_files.py).
+5. pdb2gmx outputs gro files as well that need to be combined. Merge the processed gro files together using MDAnalaysis, use [merge_gro_files.py](../code/merge_gro_files.py), again, when you combine these gro files, it's good practice to keep the established order of objects.
 6. Make the object be in the center of a box aligned to the z-axis
     * gmx editconf -f most_recent_gro_either_processed_or_merged.gro -princ -o system_aligned.gro
     * gmx editconf -f system_aligned.gro -center 0 0 0 -o system_centered.gro
