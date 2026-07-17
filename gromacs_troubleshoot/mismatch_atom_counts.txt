@@ -1,0 +1,8 @@
+I ran into an issue where atom counts of my pdb2gmx processed, after being put into a box, system gro file did not match the atom counts of the outputted topology file.
+
+This specific system was a modified crystal structure (1kx5 pdb code) with attached DNA pieces, protein chains, solvent, and ions. Something happened with the solvent, I think.
+
+Typically, I use pdb2gmx -f .pdb -o .gro -p .top -i .itp -water tip3p -ff forcefield -ignh -merge all. Then I ran into the atom count mismatch error.
+
+I found two solutions. One being removing the solvent from the pdb, this worked and grompp did not fail. However, Fatemeh told me that crystal structure's solvent is important and shouldn't be removed. So the other solution I found was change -merge all to -merge interactive
+-merge interactive allows you to select which chains are merged and which are not. I did not merge any of the HOH, OW, Cl, or Mg (no solvent or ions were merged). This seemed to solve the atom mismatch anf allowed grompp to run.
